@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<style>[hidden]{display:none!important}img{max-width:100%}body{margin:0}</style>
+<title>Лиды без сайта</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Onest:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: рабочий лист продаж. Сверху сводка и таблица для быстрого просмотра, ниже по лиду раскрытая карточка с ценами и контактами. */
+:root {
+  --bg: #f2f3ef;
+  --surface: #fbfbf9;
+  --ink: #17201c;
+  --muted: #5a665f;
+  --line: #d5dad2;
+  --accent: #0e6b5b;
+  --accent-ink: #ffffff;
+  --auto: #2c5b8a;
+  --beauty: #85406a;
+  --warn-bg: #f6ecd2;
+  --warn-ink: #6b4a0b;
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121714;
+    --surface: #1a211d;
+    --ink: #e8ece6;
+    --muted: #9aa69e;
+    --line: #2d3731;
+    --accent: #4fc2a9;
+    --accent-ink: #0b1612;
+    --auto: #7fb1e0;
+    --beauty: #e098c2;
+    --warn-bg: #3a2f14;
+    --warn-ink: #ecd194;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121714;
+  --surface: #1a211d;
+  --ink: #e8ece6;
+  --muted: #9aa69e;
+  --line: #2d3731;
+  --accent: #4fc2a9;
+  --accent-ink: #0b1612;
+  --auto: #7fb1e0;
+  --beauty: #e098c2;
+  --warn-bg: #3a2f14;
+  --warn-ink: #ecd194;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { font-size: 18px; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+/* header */
+.top { display: flex; flex-direction: column; gap: 16px; }
+.eyebrow { font-family: var(--font-data); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { max-width: 62ch; color: var(--muted); font-size: 16px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 24px; padding-top: 4px; }
+.fact { display: flex; flex-direction: column; min-width: 0; }
+.fact b { font-family: var(--font-data); font-weight: 500; font-size: 22px; }
+.fact span { font-size: 13px; color: var(--muted); }
+
+/* notice */
+.note { background: var(--warn-bg); color: var(--warn-ink); padding: 14px 16px; border-radius: 4px; font-size: 14px; max-width: 78ch; }
+.note b { font-weight: 600; }
+
+/* filters */
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: inherit; font-size: 14px; background: transparent; color: var(--ink); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* summary table */
+.tablebox { overflow-x: auto; border-top: 1px solid var(--ink); }
+table { width: 100%; border-collapse: collapse; min-width: 720px; }
+th { text-align: left; font-family: var(--font-data); font-weight: 400; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+td.num, th.num { text-align: right; }
+td.n { font-family: var(--font-data); color: var(--muted); width: 36px; }
+td a.name { font-weight: 600; color: var(--ink); text-decoration: none; }
+td a.name:hover { text-decoration: underline; }
+.sub { display: block; font-size: 13px; color: var(--muted); }
+.tag { font-family: var(--font-data); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.tag.auto { color: var(--auto); }
+.tag.beauty { color: var(--beauty); }
+.ready { font-size: 13px; font-weight: 600; }
+.ready.hi { color: var(--accent); }
+.ready.mid { color: var(--muted); }
+.ready.lo { color: var(--warn-ink); }
+:root:not([data-theme="light"]) .ready.lo { }
+
+/* lead detail */
+.leads { display: flex; flex-direction: column; }
+.lead { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 0 16px; padding-block: 28px; border-top: 1px solid var(--ink); }
+.lead[hidden] { display: none; }
+.rank { font-family: var(--font-data); font-size: 28px; color: var(--muted); line-height: 1; }
+.lead-main { min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.lead-head { display: flex; flex-direction: column; gap: 6px; }
+.stats { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.stat { font-size: 13px; color: var(--muted); }
+.stat b { font-family: var(--font-data); font-weight: 500; color: var(--ink); font-size: 15px; margin-right: 4px; }
+.cols { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 24px 40px; }
+.block { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.label { font-family: var(--font-data); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.copy { font: inherit; font-size: 12px; color: var(--accent); background: transparent; border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
+.copy.done { color: var(--muted); }
+.prices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.prices li { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+.prices li span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.prices li span:last-child { font-family: var(--font-data); white-space: nowrap; }
+.more { font-size: 13px; color: var(--muted); }
+.card-link { align-self: flex-start; display: inline-block; background: var(--accent); color: var(--accent-ink); text-decoration: none; font-weight: 600; font-size: 14px; padding: 9px 16px; border-radius: 4px; }
+.card-link:hover { filter: brightness(1.08); }
+.takeaway { font-size: 14px; color: var(--muted); max-width: 66ch; }
+
+/* footer lists */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 40px; }
+.list { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.list ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.list p { font-size: 14px; color: var(--muted); }
+
+/* pitch */
+.pitch { border-top: 1px dashed var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 16px; }
+.pitch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 40px; }
+.pitch p, .msg p { white-space: pre-line; font-size: 14px; line-height: 1.55; }
+.msg { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; }
+.msg p { margin: 0; }
+.callonly { font-size: 13px; color: var(--muted); }
+.qa { display: flex; flex-direction: column; gap: 4px; }
+.qa b { font-weight: 600; }
+.guide { display: flex; flex-direction: column; gap: 24px; }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; max-width: 74ch; }
+.qalist { display: flex; flex-direction: column; gap: 16px; max-width: 74ch; }
+
+@media (max-width: 760px) {
+  .pitch-grid { grid-template-columns: minmax(0, 1fr); }
+  .cols, .two { grid-template-columns: minmax(0, 1fr); }
+  .lead { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .rank { font-size: 20px; }
+}
+@media (prefers-reduced-motion: no-preference) { .chip, .copy { transition: background 0.15s, color 0.15s; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Москва · Яндекс Карты · 21 октября 2026</div>
+    <h1>10 заведений без сайта</h1>
+    <p class="lede">У каждого в карточке на Яндекс Картах нет поля «сайт», рейтинг от 4,5, больше 50 отзывов, есть фото и список услуг с ценами. Контент для сайта можно собрать из открытых данных.</p>
+    <div class="facts">
+      <div class="fact"><b>10</b><span>лидов из 5 поисков</span></div>
+      <div class="fact"><b>5 + 5</b><span>авто и красота</span></div>
+      <div class="fact"><b>4,7–5,0</b><span>рейтинг</span></div>
+      <div class="fact"><b>71–713</b><span>отзывов с текстом</span></div>
+    </div>
+  </header>
+
+  <div class="note">
+    <b>Что не получилось.</b> Кафе без сайта в этой выборке не нашлось: у всех заведений из верха выдачи (с тысячами оценок) сайт указан. Чтобы добрать кафе, нужен отдельный поиск по районам и более мелким заведениям.
+    <br><b>Что проверено.</b> Отсутствие сайта установлено по карточке Яндекс Карт. Перед звонком стоит открыть поиск Яндекса и 2ГИС: сайт мог быть не внесён в карточку.
+  </div>
+
+  <section style="display:flex;flex-direction:column;gap:16px">
+    <div class="bar">
+      <h2>Сводка</h2>
+      <div class="chips" role="group" aria-label="Фильтр по нише">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">Все 10</button>
+        <button class="chip" type="button" data-f="auto" aria-pressed="false">Авто · 5</button>
+        <button class="chip" type="button" data-f="beauty" aria-pressed="false">Красота · 5</button>
+      </div>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>№</th><th>Заведение</th><th class="num">Рейтинг</th><th class="num">Отзывов</th><th class="num">Фото</th><th class="num">Услуг</th><th>Материалов для сайта</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:0">
+    <h2 style="padding-bottom:16px">Карточки лидов</h2>
+    <div class="leads" id="leads"></div>
+  </section>
+
+  <section class="guide" id="guide" hidden></section>
+
+  <section class="two">
+    <div class="list">
+      <h2>Запас</h2>
+      <ul>
+        <li><b>Леон</b>, автомойка, Варшавское ш., 132, стр. 9. Рейтинг 4,5, 1377 оценок. Сайта нет. Карточку не разбирал.</li>
+        <li><b>Мойка</b>, Днепропетровская ул., 18, корп. 1. Рейтинг 5,0, 1335 оценок. Сайта нет, но вкладки «Услуги» в карточке нет.</li>
+        <li><b>Блеск</b>, шиномонтаж и детейлинг. Рейтинг 5,0, 914 оценок, сайта нет, но адрес в Люберцах, не в Москве.</li>
+      </ul>
+    </div>
+    <div class="list">
+      <h2>Только Taplink</h2>
+      <p>Вместо сайта у них страница-визитка Taplink. Это слабее лид, но тоже работа: нужен нормальный сайт.</p>
+      <ul>
+        <li><a href="https://yandex.ru/maps/org/springtime/11624261324/" target="_blank" rel="noopener">Springtime</a>, 1271 отзыв</li>
+        <li><a href="https://yandex.ru/maps/org/t_g_nails_boutique/102622333008/" target="_blank" rel="noopener">T&amp;G Nails Boutique</a>, 617 отзывов</li>
+        <li><a href="https://yandex.ru/maps/org/meyts/109221169026/" target="_blank" rel="noopener">Meyts</a>, 143 отзыва</li>
+        <li><a href="https://yandex.ru/maps/org/flamingo_nail_studio/67479874450/" target="_blank" rel="noopener">Flamingo Nail Studio</a>, 116 отзывов</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+var LEADS = [
+  { n: 1, name: "Клаб Нейлс", type: "beauty", cat: "Ногтевая студия", addr: "Большой Кисловский пер., 1, стр. 2, этаж 1, офис 122–123", phone: "+7 (964) 641-07-70", hours: "до 22:00", rating: "5,0", rated: 598, reviews: 393, photos: 308, services: 104, ready: "hi", url: "https://yandex.ru/maps/org/klab_neyls/190609706924/",
+    prices: [["Маникюр + скраб + парафинотерапия", "1 700 ₽"], ["Педикюр пальчики + покрытие", "2 300 ₽"], ["Снятие + маникюр + укрепление гелем", "3 100 ₽"], ["Идеальные ножки (снятие + педикюр)", "3 400 ₽"], ["Маникюр + коррекция наращивания + гель-лак", "3 700 ₽"]] },
+  { n: 2, name: "Nail zone", type: "beauty", cat: "Ногтевая студия", addr: "Троилинский пер., 3, этаж 4, комната 410", phone: "+7 (964) 002-54-56", hours: "до 22:00", rating: "5,0", rated: 590, reviews: 539, photos: 223, services: 25, ready: "hi", url: "https://yandex.ru/maps/org/nail_zone/10210956424/",
+    prices: [["Ремонт ногтя", "100 ₽"], ["Наращивание одного ногтя", "200 ₽"], ["Лунки", "400 ₽"], ["Френч", "500 ₽"], ["Омбре", "500 ₽"], ["Втирка", "500 ₽"]] },
+  { n: 3, name: "New Nails", type: "beauty", cat: "Ногтевая студия", addr: "1-я Тверская-Ямская ул., 13, стр. 1А", phone: "+7 (926) 034-34-56", hours: "до 22:00", rating: "5,0", rated: 453, reviews: 325, photos: 77, services: 53, ready: "hi", url: "https://yandex.ru/maps/org/new_nails/184677957690/",
+    prices: [["Маникюр без покрытия", "1 800 ₽"], ["Покрытие гель-лаком Luxio / база + топ", "2 200 ₽"], ["Маникюр с покрытием Luxio", "2 800 ₽"], ["Маникюр с укреплением камуфляжным гелем", "3 200 ₽"], ["Маникюр с покрытием Luxio френч", "3 300 ₽"]] },
+  { n: 4, name: "Meat Wash", type: "auto", cat: "Автомойка, оклейка машин", addr: "Мясницкая ул., 11", phone: "+7 (992) 129-65-76", hours: "до 22:00", rating: "5,0", rated: 210, reviews: 155, photos: 142, services: 59, ready: "hi", url: "https://yandex.ru/maps/org/meat_wash/191686454110/",
+    prices: [["Чистка багажника", "500 ₽"], ["Пылесос салона", "600 ₽"], ["Сухой туман", "1 000 ₽"], ["Озонация салона", "1 000 ₽"], ["Химчистка руля", "1 000 ₽"], ["Детейлинг-химчистка салона", "20 000 ₽"]] },
+  { n: 5, name: "Мужская парикмахерская Аляска", type: "beauty", cat: "Барбершоп", addr: "Люсиновская ул., 55", phone: "+7 (495) 150-52-25", hours: "до 22:00", rating: "5,0", rated: 611, reviews: 280, photos: 117, services: 26, ready: "mid", url: "https://yandex.ru/maps/org/muzhskaya_parikmakherskaya_alyaska/1582965945/",
+    prices: [["Hair Tattoo (цена от)", "600 ₽"], ["Мужская стрижка (цена от)", "2 200 ₽"], ["Стрижка головы машинкой", "в карточке"], ["Бритьё головы шейвером", "в карточке"], ["Пакет «Папа + сын»", "в карточке"]] },
+  { n: 6, name: "Робот мойка", type: "auto", cat: "Автомойка", addr: "Нижняя Краснохолмская ул. (Павелецкая)", phone: "+7 (985) 710-17-67", hours: "круглосуточно", rating: "4,7", rated: 1402, reviews: 713, photos: 134, services: 10, ready: "mid", url: "https://yandex.ru/maps/org/robot_moyka/239567441288/",
+    prices: [["Незамерзайка (жидкость −30)", "300 ₽"], ["Экспресс-мойка", "600 ₽"], ["Оптимальная мойка", "1 000 ₽"], ["Стандарт", "1 200 ₽"], ["Премиум", "1 400 ₽"]] },
+  { n: 7, name: "Адель", type: "beauty", cat: "Косметология", addr: "ул. Маросейка, 6-8с1, подъезд 1, этаж 2, офис 1", phone: "+7 (925) 020-40-50", hours: "см. карточку", rating: "5,0", rated: 105, reviews: 71, photos: 50, services: 41, ready: "mid", url: "https://yandex.ru/maps/org/adel/1273390949/",
+    prices: [["Ультразвуковая чистка лица", "2 000 ₽"], ["Массаж лица + альгинатная маска", "2 000 ₽"], ["Чистка лица механическая", "2 800 ₽"], ["Комбинированная чистка лица", "3 000 ₽"], ["Пилинг BioRePeel", "3 500 ₽"], ["Химический пилинг MedicControlPeel", "4 000 ₽"]] },
+  { n: 8, name: "Автомойка на 10-й Парковой", type: "auto", cat: "Автомойка, детейлинг", addr: "10-я Парковая ул.", phone: "+7 (495) 109-09-37", hours: "до 21:00", rating: "4,7", rated: 1120, reviews: 549, photos: 40, services: 15, ready: "mid", url: "https://yandex.ru/maps/org/avtomoyka/214119219602/",
+    prices: [["Наномойка двухфазная", "1 350 ₽"], ["Супер антидождь, лобовое стекло", "1 500 ₽"], ["Полировка твёрдым воском", "8 500 ₽"], ["Восстановление глянца ЛКП", "18 000 ₽"], ["Полировка автомобиля", "20 000 ₽"], ["Защитное покрытие Ceramic 9H", "40 000 ₽"]] },
+  { n: 9, name: "Диск-Ок", type: "auto", cat: "Шиномонтаж, ремонт дисков", addr: "Олонецкий пр., 14/1", phone: "+7 (977) 578-53-39", hours: "до 21:00", rating: "5,0", rated: 316, reviews: 217, photos: 60, services: 5, ready: "lo", url: "https://yandex.ru/maps/org/disk_ok/47437288672/",
+    prices: [["Шиномонтаж легковых", "780 ₽"], ["Шиномонтаж джипов, кроссоверов", "1 080 ₽"], ["Ремонт дисков, покраска", "1 200 ₽"], ["Сезонное хранение шин", "3 000 ₽"], ["Заправка автокондиционеров", "3 500 ₽"]] },
+  { n: 10, name: "Шиномонтаж на Кленовом бульваре", type: "auto", cat: "Шиномонтаж", addr: "Кленовый бул., 28А", phone: "+7 (977) 142-18-05", hours: "круглосуточно", rating: "5,0", rated: 582, reviews: 342, photos: 87, services: 3, ready: "lo", url: "https://yandex.ru/maps/org/shinomontazh/209159413929/",
+    prices: [["Мойка колёс (4 колеса)", "200 ₽"], ["Ремонт боковых порезов (от)", "1 500 ₽"], ["Ремонт литых дисков (от)", "1 500 ₽"]] }
+];
+var PUBLIC = true;
+var BEAUTY_INTRO = "Меня зовут Влад, я делаю сайты для салонов красоты, недавно делал для студии в Троицке.";
+var AUTO_INTRO = "Меня зовут Влад, я делаю сайты для малого бизнеса в Москве.";
+var PITCH = {
+  1: { hook: "393 отзыва, 308 фото и 104 услуги с ценами лежат в карточке Яндекса, а своей страницы у студии нет.",
+    call: "Здравствуйте! " + BEAUTY_INTRO + "\nУвидел вашу карточку на Яндекс Картах: 393 отзыва, 308 фото, 104 услуги, а сайта нет.\nПредлагаю так: я бесплатно соберу макет сайта из ваших же фото и прайса и пришлю ссылку. Понравится — обсудим, нет — вы ничего не должны.\nКому лучше отправить ссылку: вам или администратору?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для салонов красоты (недавно — для студии в Троицке). Нашёл вашу карточку на Яндекс Картах: 393 отзыва, 308 фото и 104 услуги, а сайта нет. Давайте я бесплатно соберу макет сайта из ваших фото и прайса и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  2: { hook: "539 отзывов и 223 фото. Цены от 100 ₽ за ремонт ногтя до 500 ₽ за дизайн разбросаны по 25 позициям в карточке.",
+    call: "Здравствуйте! " + BEAUTY_INTRO + "\nУвидел Nail zone на Яндекс Картах: 539 отзывов, 223 фото, а сайта нет. И заметил, что вы на 4 этаже, комната 410: новичкам наверняка сложно вас найти.\nЯ бесплатно соберу макет сайта с прайсом, фото работ и схемой «как пройти» и пришлю ссылку. Не понравится — ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для салонов красоты (недавно — для студии в Троицке). Увидел Nail zone на Яндекс Картах: 539 отзывов, 223 фото, а сайта нет. Ещё заметил, что вы на 4 этаже, комната 410 — новичкам сложно найти. Бесплатно соберу макет сайта с прайсом, фото работ и схемой «как пройти» и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  3: { hook: "453 оценки и 325 отзывов. Маникюр с покрытием Luxio от 2 800 ₽, в карточке 53 услуги.",
+    call: "Здравствуйте! " + BEAUTY_INTRO + "\nУвидел New Nails на Яндекс Картах: 325 отзывов, 53 услуги, маникюр с Luxio от 2 800 ₽, а сайта нет.\nПри таком чеке людям важно понять, за что они платят. Я бесплатно соберу макет сайта из вашего прайса и фото и пришлю ссылку. Понравится — обсудим, нет — вы ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для салонов красоты (недавно — для студии в Троицке). Увидел New Nails на Яндекс Картах: 325 отзывов, 53 услуги, маникюр с Luxio от 2 800 ₽, а сайта нет. При таком чеке людям важно видеть, за что они платят. Бесплатно соберу макет сайта из вашего прайса и фото и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  4: { hook: "155 отзывов, 142 фото и 59 услуг с описаниями и ценами: от чистки багажника за 500 ₽ до химчистки салона за 20 000 ₽.",
+    call: "Здравствуйте! " + AUTO_INTRO + "\nУвидел вашу автомойку на Яндекс Картах: рейтинг 5,0, 142 фото, 59 услуг, а сайта нет.\nУ вас есть химчистка за 20 000 ₽, и такие чеки лучше продаются, когда все услуги и работы видны на одной странице. Я бесплатно соберу макет сайта из ваших фото и прайса и пришлю ссылку. Понравится — обсудим, нет — вы ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для малого бизнеса в Москве. Увидел Meat Wash на Яндекс Картах: рейтинг 5,0, 142 фото, 59 услуг, а сайта нет. Бесплатно соберу макет сайта из ваших фото и прайса, чтобы все услуги и работы были на одной странице, и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  5: { hook: "280 отзывов, 611 оценок, у парикмахерской есть филиалы, а сайта нет. Стрижка от 2 200 ₽, в карточке есть пакет «Папа + сын».",
+    call: "Здравствуйте! " + "Меня зовут Влад, я делаю сайты для малого бизнеса в Москве.\nУвидел мужскую парикмахерскую Аляска на Яндекс Картах: 280 отзывов, несколько филиалов, а сайта нет. А пакет «Папа + сын» в карточке теряется среди 26 услуг.\nЯ бесплатно соберу макет сайта: филиалы, цены и этот пакет на виду. Понравится — обсудим, нет — вы ничего не должны.\nПодскажите, кто у вас решает такие вопросы: управляющий или владелец? Отправлю макет ему.",
+    msg: null },
+  6: { hook: "713 отзывов, круглосуточно, пять тарифов от 300 до 1 400 ₽. Ночные цены (с 00:00 до 09:00) спрятаны внутри описания тарифов.",
+    call: "Здравствуйте! " + AUTO_INTRO + "\nУвидел вашу мойку на Яндекс Картах: 713 отзывов, круглосуточно, а сайта нет. Ещё заметил, что ночные цены спрятаны в описании тарифов.\nЯ бесплатно соберу макет одной страницы: таблица цен день и ночь, что входит в тариф, как заехать. Понравится — обсудим, нет — вы ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для малого бизнеса в Москве. Увидел вашу мойку на Яндекс Картах: 713 отзывов, круглосуточно, а сайта нет. Ночные цены спрятаны в описании тарифов — на сайте можно сделать таблицу день/ночь. Бесплатно соберу макет одной страницы и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  7: { hook: "Рейтинг 5,0, 71 отзыв и 105 оценок, 41 услуга: чистки лица от 2 000 ₽, пилинги 3 500–4 000 ₽.",
+    call: "Здравствуйте! " + "Меня зовут Влад, я делаю сайты для салонов красоты, недавно делал для студии в Троицке.\nУвидел вашу карточку на Яндекс Картах: рейтинг 5,0, 41 услуга, а сайта нет.\nПри чеках от 2 000 до 4 000 ₽ людям важно сначала понять, кто специалист и как проходит процедура. Я бесплатно соберу макет сайта из вашего прайса и фото и пришлю ссылку. Понравится — обсудим, нет — вы ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для салонов красоты (недавно — для студии в Троицке). Увидел «Адель» на Яндекс Картах: рейтинг 5,0, 41 услуга, а сайта нет. При чеках от 2 000 до 4 000 ₽ людям важно сначала понять, кто специалист и как проходит процедура. Бесплатно соберу макет сайта из вашего прайса и фото и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  8: { hook: "549 отзывов и 1 120 оценок, 15 услуг: наномойка от 1 350 ₽ и защитное покрытие Ceramic 9H за 40 000 ₽. Фото в карточке только 40.",
+    call: "Здравствуйте! " + AUTO_INTRO + "\nУвидел вашу автомойку на 10-й Парковой на Яндекс Картах: 549 отзывов, а сайта нет. У вас есть полировка за 20 000 ₽ и керамика за 40 000 ₽, такие услуги лучше продаются, когда работы видно.\nЯ бесплатно соберу макет сайта из вашей карточки и пришлю ссылку. Понравится — обсудим, нет — вы ничего не должны.\nПодскажите, с кем мне это обсудить: с владельцем или управляющим?",
+    msg: null },
+  9: { hook: "217 отзывов, рейтинг 5,0. Шиномонтаж легковых от 780 ₽, хранение шин от 3 000 ₽, заправка кондиционеров от 3 500 ₽: услуг в карточке всего пять.",
+    call: "Здравствуйте! " + AUTO_INTRO + "\nУвидел «Диск-Ок» на Яндекс Картах: рейтинг 5,0, 217 отзывов, а сайта нет. У вас, кроме шиномонтажа, есть хранение шин и ремонт дисков, и в карточке это почти не видно.\nЯ бесплатно соберу макет одной страницы: прайс, хранение, ремонт дисков, как проехать. Понравится — обсудим, нет — вы ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для малого бизнеса в Москве. Увидел «Диск-Ок» на Яндекс Картах: рейтинг 5,0, 217 отзывов, а сайта нет. Кроме шиномонтажа у вас есть хранение шин и ремонт дисков, в карточке это почти не видно. Бесплатно соберу макет одной страницы с прайсом и схемой проезда и пришлю ссылку. Не понравится — ничего не должны. Прислать?" },
+  10: { hook: "342 отзыва, рейтинг 5,0, работают круглосуточно. В карточке всего три услуги: мойка колёс 200 ₽, ремонт порезов и литых дисков от 1 500 ₽.",
+    call: "Здравствуйте! " + AUTO_INTRO + "\nУвидел ваш шиномонтаж на Кленовом бульваре на Яндекс Картах: рейтинг 5,0, 342 отзыва, работаете круглосуточно, а сайта нет. В карточке всего три услуги, и цену обычного шиномонтажа там не найти.\nЯ бесплатно соберу макет одной страницы: цены, круглосуточный режим, как проехать. Понравится — обсудим, нет — вы ничего не должны.\nКуда лучше отправить?",
+    msg: "Здравствуйте! Меня зовут Влад, делаю сайты для малого бизнеса в Москве. Увидел ваш шиномонтаж на Кленовом бульваре: рейтинг 5,0, 342 отзыва, круглосуточно, а сайта нет. В карточке всего три услуги, цену обычного шиномонтажа не найти. Бесплатно соберу макет одной страницы с ценами и схемой проезда и пришлю ссылку. Не понравится — ничего не должны. Прислать?" }
+};
+var READY = { hi: "Высокая", mid: "Средняя", lo: "Низкая" };
+var TYPE = { auto: "Авто", beauty: "Красота" };
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
+function pitchHtml(l) {
+  var p = PITCH[l.n]; if (!p) return "";
+  var mobile = /\+7 \(9\d\d\)/.test(l.phone);
+  var out = '<div class="pitch">' +
+    '<div class="block"><div class="label">Крючок: что видно в карточке</div><p>' + esc(p.hook) + '</p></div>';
+  if (!PUBLIC) out += '<div class="block"><div class="label">Боль клиента</div><p>' + esc(p.pain) + '</p></div>';
+  out += '<div class="pitch-grid">' +
+    '<div class="block"><div class="label">Звонок</div><p>' + esc(p.call) + '</p></div>' +
+    '<div class="block"><div class="label">Сообщение в мессенджер</div>' +
+      (p.msg && mobile ? '<div class="msg"><p>' + esc(p.msg) + '</p><button class="copy" type="button" data-copy="' + esc(p.msg) + '">Копировать</button></div>' : '<p class="callonly">Городской номер: только звонок.</p>') +
+    '</div></div>';
+  if (!PUBLIC) out += '<div class="qa"><div class="label">Главное возражение</div><span><b>«' + esc(p.q) + '»</b></span><p>' + esc(p.a) + '</p></div>' +
+    '<div class="block"><div class="label">Цель контакта</div><p>' + esc(p.next) + '</p></div>';
+  return out + '</div>';
+}
+
+var rows = LEADS.map(function (l) {
+  return '<tr data-type="' + l.type + '"><td class="n">' + l.n + '</td>' +
+    '<td><a class="name" href="#lead-' + l.n + '">' + esc(l.name) + '</a><span class="sub"><span class="tag ' + l.type + '">' + TYPE[l.type] + '</span> · ' + esc(l.cat) + '</span></td>' +
+    '<td class="num mono">' + l.rating + '</td><td class="num mono">' + l.reviews + '</td><td class="num mono">' + l.photos + '</td><td class="num mono">' + l.services + '</td>' +
+    '<td><span class="ready ' + l.ready + '">' + READY[l.ready] + '</span></td></tr>';
+}).join("");
+document.getElementById("rows").innerHTML = rows;
+
+var cards = LEADS.map(function (l) {
+  var prices = l.prices.map(function (p) { return '<li><span>' + esc(p[0]) + '</span><span>' + esc(p[1]) + '</span></li>'; }).join("");
+  var rest = l.services - l.prices.length;
+  return '<article class="lead" id="lead-' + l.n + '" data-type="' + l.type + '">' +
+    '<div class="rank">' + (l.n < 10 ? "0" : "") + l.n + '</div>' +
+    '<div class="lead-main">' +
+      '<div class="lead-head"><span class="tag ' + l.type + '">' + TYPE[l.type] + ' · ' + esc(l.cat) + '</span><h3>' + esc(l.name) + '</h3>' +
+      '<div class="stats"><span class="stat"><b>' + l.rating + '</b>рейтинг</span><span class="stat"><b>' + l.rated + '</b>оценок</span><span class="stat"><b>' + l.reviews + '</b>отзывов</span><span class="stat"><b>' + l.photos + '</b>фото</span><span class="stat"><b>' + l.services + '</b>услуг</span></div></div>' +
+      '<div class="cols">' +
+        '<div class="block"><div class="label">Контакты</div>' +
+          '<div class="contact"><span>' + esc(l.addr) + '</span></div>' +
+          '<div class="contact"><span class="mono">' + esc(l.phone) + '</span><button class="copy" type="button" data-copy="' + esc(l.phone) + '">Копировать</button></div>' +
+          '<div class="stat">Работает: ' + esc(l.hours) + '</div>' +
+          '<a class="card-link" href="' + l.url + '" target="_blank" rel="noopener">Открыть карточку</a></div>' +
+        '<div class="block"><div class="label">Услуги и цены из карточки</div><ul class="prices">' + prices + '</ul>' +
+          (rest > 0 ? '<div class="more">и ещё ' + rest + ' в карточке</div>' : '') + '</div>' +
+      '</div>' +
+      (PUBLIC ? '' : '<p class="takeaway"><b>Для сайта:</b> ' + esc(l.take) + '</p>') +
+      pitchHtml(l) +
+    '</div></article>';
+}).join("");
+document.getElementById("leads").innerHTML = cards;
+
+document.querySelectorAll(".chip").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var f = b.getAttribute("data-f");
+    document.querySelectorAll(".chip").forEach(function (c) { c.setAttribute("aria-pressed", c === b ? "true" : "false"); });
+    document.querySelectorAll("#rows tr, .lead").forEach(function (el) {
+      el.hidden = !(f === "all" || el.getAttribute("data-type") === f);
+    });
+  });
+});
+document.addEventListener("click", function (e) {
+  var b = e.target.closest(".copy");
+  if (!b) return;
+  var t = b.getAttribute("data-copy");
+  function ok() { b.textContent = "Скопировано"; b.classList.add("done"); setTimeout(function () { b.textContent = "Копировать"; b.classList.remove("done"); }, 1600); }
+  function fallback() {
+    var r = document.createRange(); r.selectNodeContents(b.previousElementSibling);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    b.textContent = "Выделено";
+  }
+  try { navigator.clipboard.writeText(t).then(ok, fallback); } catch (err) { fallback(); }
+});
+</script>
+
+</body>
+</html>
